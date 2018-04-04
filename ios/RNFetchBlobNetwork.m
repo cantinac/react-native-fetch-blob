@@ -106,8 +106,12 @@ NSOperationQueue *taskQueue;
 - (id)init {
     self = [super init];
     if(taskQueue == nil) {
-        taskQueue = [[NSOperationQueue alloc] init];
-        taskQueue.maxConcurrentOperationCount = 10;
+      @synchronized ([RNFetchBlobNetwork class]) {
+        if (taskQueue == nil) {
+          taskQueue = [[NSOperationQueue alloc] init];
+          taskQueue.maxConcurrentOperationCount = 10;
+        }
+      }
     }
     return self;
 }
@@ -169,7 +173,7 @@ NSOperationQueue *taskQueue;
     self.expectedBytes = 0;
     self.receivedBytes = 0;
     self.options = options;
-    
+
     backgroundTask = [options valueForKey:@"IOSBackgroundTask"] == nil ? NO : [[options valueForKey:@"IOSBackgroundTask"] boolValue];
     followRedirect = [options valueForKey:@"followRedirect"] == nil ? YES : [[options valueForKey:@"followRedirect"] boolValue];
     isIncrement = [options valueForKey:@"increment"] == nil ? NO : [[options valueForKey:@"increment"] boolValue];
